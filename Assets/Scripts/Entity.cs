@@ -27,7 +27,7 @@ public class Entity : MonoBehaviour
         ShakeHandler.Instance.AddEnemyHipToShakeTargets(_hipRigidbody);
 
         if (_isPlayer)
-            _maxHP *= ProgressionManager.Player_Data.HealthIncrease;
+            _maxHP += _maxHP * ProgressionManager.Player_Data.HealthIncreaseLevel * 0.1f;
 
         _currentHP = _maxHP;
     }
@@ -43,7 +43,7 @@ public class Entity : MonoBehaviour
     public void TakeDamage(float amount)
     {
         if (!_isPlayer)
-            amount *= ProgressionManager.Player_Data.DamageIncrease;
+            amount += amount * ProgressionManager.Player_Data.DamageIncreaseLevel * 0.1f;
 
         _currentHP -= amount;
         _hpBar.fillAmount = _currentHP / _maxHP;

@@ -1,5 +1,5 @@
 using System;
-using System.Collections;
+using TMPro;
 using Unity.Notifications.Android;
 using UnityEngine;
 using UnityEngine.Android;
@@ -7,11 +7,11 @@ using UnityEngine.Android;
 public class EnergyManager : MonoBehaviour
 {
     [SerializeField] float _maxEnergy = 100f;
-    [SerializeField] float _currentEnergy;
-
     [SerializeField] float _energyRecoverPerMinute = 0.5f;
-    DateTime _lastTimeRecoveredEnergy;
-    WaitForSeconds _waitMinute = new (60);
+    [SerializeField] TextMeshProUGUI _energyTxt;
+
+    float _timer;
+    float _waitTime;
 
     private void Start()
     {
@@ -31,57 +31,60 @@ public class EnergyManager : MonoBehaviour
         };
         AndroidNotificationCenter.RegisterNotificationChannel(channel);
 
-        StartCoroutine(RecoverEnergy());
+        if (_energyTxt != null)
+            _energyTxt.SetText($"E: {ProgressionManager.Player_Data.Energy.ToString()}");
+
+        TimeZone.OnGetDate.AddListener(BeginEnergyRecovery);
     }
 
-    IEnumerator RecoverEnergy()
+    public void RefreshEnergyTxt()
     {
-        while (TimeZone.AppOpenTime == DateTime.MinValue)
-        {
-            yield return null;
-        }
-
-        TimeSpan timeSpan = TimeZone.CurrentTime.Subtract(_lastTimeRecoveredEnergy);
-        float totalEnergyRecover = timeSpan.Minutes * _energyRecoverPerMinute;
-        _currentEnergy += totalEnergyRecover;
-        if (_currentEnergy > _maxEnergy)
-            _currentEnergy = _maxEnergy;
-
-        float timer = 0;
-        float waitTime = ((float)timeSpan.TotalMinutes - timeSpan.Minutes * 60) * 60;
-        while (true)
-        {
-            if (_currentEnergy > _maxEnergy)
-            {
-                timer = 0;
-                continue;
-            }
-
-            timer += Time.deltaTime;
-            if (timer < waitTime) continue;
-            timer -= waitTime;
-
-            _lastTimeRecoveredEnergy = TimeZone.CurrentTime;
-
-            _currentEnergy += _energyRecoverPerMinute;
-
-            if (_currentEnergy > _maxEnergy)
-                _currentEnergy = _maxEnergy;
-        }
+        if (_energyTxt != null)
+            _energyTxt.SetText($"E: {ProgressionManager.Player_Data.Energy.ToString()}");
     }
 
-    public bool HasEnoughEnergy(float cost)
+    void BeginEnergyRecovery()
     {
-        if (_currentEnergy >= cost)
-        {
-            _currentEnergy -= cost;
-            return true;
-        }
-        return false;
+        TimeSpan timeSpan = TimeZone.CurrentTime.Subtract(
+            DateTime.Parse(ProgressionManager.Player_Data.LastTimeRecoveredEnergy, null, System.Globalization.DateTimeStyles.RoundtripKind));
+
+        float totalEnergyRecover = Mathf.Round((float)timeSpan.TotalMinutes) * _energyRecoverPerMinute;
+        ProgressionManager.Player_Data.Energy += totalEnergyRecover;
+        if (ProgressionManager.Player_Data.Energy > _maxEnergy)
+            ProgressionManager.Player_Data.Energy = _maxEnergy;
+
+        Debug.Log($"Recovers {totalEnergyRecover} (minutes sinces last: {(int)timeSpan.TotalMinutes})");
+        _energyTxt.SetText(ProgressionManager.Player_Data.Energy.ToString());
+
+        _timer = 0;
+        _waitTime = ((float)timeSpan.TotalMinutes - (int)timeSpan.TotalMinutes) * 60;
+        Debug.Log($"Next recovery in {_waitTime} seconds (Total Minutes: {(float)timeSpan.TotalMinutes}, Minutes: {(int)timeSpan.TotalMinutes}, Subs: {(float)timeSpan.TotalMinutes - timeSpan.Minutes})");
+        ProgressionManager.Player_Data.LastTimeRecoveredEnergy = TimeZone.CurrentTime.ToString("o");
     }
 
-    private void OnDestroy()
+    private void Update()
     {
-        // Save to json last time the player recovered energy
+        if (!TimeZone.GotDate) return;
+
+        if (ProgressionManager.Player_Data.Energy >= _maxEnergy)
+        {
+            _timer = 0;
+            return;
+        }
+
+        _timer += Time.deltaTime;
+        if (_timer < _waitTime) return;
+
+        _timer = 0;
+        _waitTime = 60;
+
+        ProgressionManager.Player_Data.LastTimeRecoveredEnergy = TimeZone.CurrentTime.ToString("o");
+
+        ProgressionManager.Player_Data.Energy += _energyRecoverPerMinute;
+
+        if (ProgressionManager.Player_Data.Energy > _maxEnergy)
+            ProgressionManager.Player_Data.Energy = _maxEnergy;
+
+        _energyTxt.SetText(ProgressionManager.Player_Data.Energy.ToString());
     }
 }

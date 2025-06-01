@@ -4,14 +4,24 @@ using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
+    [SerializeField] string _gameSceneName;
     [SerializeField] string _sceneName;
 
-    [SerializeField] TextMeshProUGUI _killPointsTxt;
+    [SerializeField] float _beginGameCost;
+    [SerializeField] TextMeshProUGUI _goldTxt;
 
     private void Start()
     {
-        if (_killPointsTxt != null)
-            _killPointsTxt.SetText(ProgressionManager.LoadPlayerData().killPoints.ToString());
+        if (_goldTxt != null)
+            _goldTxt.SetText(ProgressionManager.Player_Data.Gold.ToString());
+    }
+
+    public void TryStartGame()
+    {
+        if (ProgressionManager.Player_Data.Energy < _beginGameCost) return;
+
+        ProgressionManager.Player_Data.Energy -= _beginGameCost;
+        SceneManager.LoadScene(_gameSceneName);
     }
 
     public void LoadScene()
@@ -36,21 +46,27 @@ public class MenuManager : MonoBehaviour
 
     public void IncreasePlayerDamage()
     {
-        if (ProgressionManager.ConsumeKillPoint())
+        if (ProgressionManager.ConsumeGold(ProgressionManager.Player_Data.DamageIncreaseLevel * 5))
         {
             ProgressionManager.DamageIncrease();
-            _killPointsTxt.SetText(ProgressionManager.Player_Data.killPoints.ToString());
+            _goldTxt.SetText($"Gold: {ProgressionManager.Player_Data.Gold.ToString()}");
             ProgressionManager.SaveData();
         }
     }
 
     public void IncreasePlayerHealth()
     {
-        if (ProgressionManager.ConsumeKillPoint())
+        if (ProgressionManager.ConsumeGold(ProgressionManager.Player_Data.HealthIncreaseLevel * 5))
         {
             ProgressionManager.HealthIncrease();
-            _killPointsTxt.SetText(ProgressionManager.Player_Data.killPoints.ToString());
+            _goldTxt.SetText($"Gold: {ProgressionManager.Player_Data.Gold.ToString()}");
             ProgressionManager.SaveData();
         }
+    }
+
+    public void RefreshGoldTxt()
+    {
+        if (_goldTxt != null)
+            _goldTxt.SetText($"Gold: {ProgressionManager.Player_Data.Gold.ToString()}");
     }
 }

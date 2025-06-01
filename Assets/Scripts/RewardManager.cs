@@ -10,7 +10,6 @@ public class RewardManager : MonoBehaviour
     private void Start()
     {
         // Get the DateTime of the nextrewardtime
-
         if (!Permission.HasUserAuthorizedPermission("android.permission.POST_NOTIFICATIONS"))
         {
             Permission.RequestUserPermission("android.permission.POST_NOTIFICATIONS");
@@ -26,10 +25,20 @@ public class RewardManager : MonoBehaviour
             Description = "Reminder notifications",
         };
         AndroidNotificationCenter.RegisterNotificationChannel(channel);
+
+        TimeZone.OnGetDate.AddListener(CheckForReward);
+    }
+
+    void CheckForReward()
+    {
+        _time4NxtReward = 
+            DateTime.Parse(ProgressionManager.Player_Data.ClaimedRewardTime, null, System.Globalization.DateTimeStyles.RoundtripKind).AddDays(1);
     }
 
     public void ClaimDailyReward()
     {
+        if (!TimeZone.GotDate) return;
+
         DateTime currentTime = TimeZone.CurrentTime;
         if (currentTime < _time4NxtReward)
         {
@@ -40,8 +49,8 @@ public class RewardManager : MonoBehaviour
         _time4NxtReward = currentTime.AddDays(1);
         Debug.Log($"Next reward: {_time4NxtReward}");
 
-        // Add 100 energy to player
-        // Add gold to player
+        ProgressionManager.Player_Data.Energy += 100;
+        ProgressionManager.Player_Data.Gold += 50;
 
         if (!Permission.HasUserAuthorizedPermission("android.permission.POST_NOTIFICATIONS"))
         {
