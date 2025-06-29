@@ -32,7 +32,7 @@ public class EnergyManager : MonoBehaviour
         AndroidNotificationCenter.RegisterNotificationChannel(channel);
 
         if (_energyTxt != null)
-            _energyTxt.SetText($"E: {ProgressionManager.Player_Data.Energy.ToString()}");
+            _energyTxt.SetText($"{ProgressionManager.Player_Data.Energy.ToString()}");
 
         TimeZone.OnGetDate.AddListener(BeginEnergyRecovery);
     }
@@ -40,7 +40,7 @@ public class EnergyManager : MonoBehaviour
     public void RefreshEnergyTxt()
     {
         if (_energyTxt != null)
-            _energyTxt.SetText($"E: {ProgressionManager.Player_Data.Energy.ToString()}");
+            _energyTxt.SetText($"{ProgressionManager.Player_Data.Energy.ToString()}");
     }
 
     void BeginEnergyRecovery()

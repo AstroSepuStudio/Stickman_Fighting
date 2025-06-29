@@ -94,6 +94,11 @@ public class ProgressionManager : MonoBehaviour
         PlayerData data = JsonUtility.FromJson<PlayerData>(json);
         return data;
     }
+
+    public static int GetTotalUpgrades()
+    {
+        return Player_Data.HealthIncreaseLevel + Player_Data.DamageIncreaseLevel;
+    }
 }
 
 [System.Serializable]

@@ -5,6 +5,9 @@ using Unity.Notifications.Android;
 
 public class RewardManager : MonoBehaviour
 {
+    [SerializeField] EnergyManager energyManager;
+    [SerializeField] MenuManager menuManager;
+
     private DateTime _time4NxtReward;
 
     private void Start()
@@ -73,5 +76,8 @@ public class RewardManager : MonoBehaviour
             AndroidNotificationCenter.CancelAllNotifications();
             AndroidNotificationCenter.SendNotification(notification, "channel_id");
         }
+
+        menuManager.RefreshGoldTxt();
+        energyManager.RefreshEnergyTxt();
     }
 }

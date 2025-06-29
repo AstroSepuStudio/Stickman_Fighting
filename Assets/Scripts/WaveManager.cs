@@ -32,6 +32,7 @@ public class WaveManager : MonoBehaviour
     {
         _gameOverScreen.SetActive(true);
         ProgressionManager.SaveData();
+        AnalyticsManager.Instance.OnRunCompleted(_round);
     }
 
     public void OnEnemyDeath(Entity entity)
