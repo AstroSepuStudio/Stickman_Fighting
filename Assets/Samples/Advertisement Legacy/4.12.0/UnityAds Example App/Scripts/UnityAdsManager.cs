@@ -36,6 +36,18 @@ public class UnityAdsManager : MonoBehaviour, IUnityAdsInitializationListener, I
     GAME_ID = _androidGameId; //Only for testing the functionality in the Editor
 #endif
 
+        Debug.Log($"GAME_ID: {GAME_ID}");
+
+        if (Advertisement.isInitialized)
+        {
+            Debug.Log("Ads ya cargaron bro");
+        }
+
+        if (!Advertisement.isSupported)
+        {
+            Debug.Log("Ads no soportados");
+        }
+
         if (!Advertisement.isInitialized && Advertisement.isSupported)
         {
             Advertisement.Initialize(GAME_ID, _testMode, this);
@@ -67,7 +79,7 @@ public class UnityAdsManager : MonoBehaviour, IUnityAdsInitializationListener, I
         };
 
         // Show the loaded Banner Ad Unit:
-        Advertisement.Banner.Show(GAME_ID, options);
+        Advertisement.Banner.Show("Banner_Android", options);
     }
 
     public void ShowRewardedAd()

@@ -7,7 +7,7 @@ using UnityEngine.Events;
 
 public class TimeZone : MonoBehaviour
 {
-    public static DateTime AppOpenTime { get; private set; }
+    public static DateTime AppOpenTime = DateTime.MinValue;
     public static DateTime CurrentTime => AppOpenTime.AddSeconds(Time.time);
     public static UnityEvent OnGetDate = new();
     public static bool GotDate = false;
@@ -18,6 +18,7 @@ public class TimeZone : MonoBehaviour
     private void Awake()
     {
         if (AppOpenTime != DateTime.MinValue) return;
+        if (GotDate) return;
 
         StartCoroutine(GetData());
     }

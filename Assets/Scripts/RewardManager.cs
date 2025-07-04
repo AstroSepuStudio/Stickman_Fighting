@@ -2,11 +2,14 @@ using System;
 using UnityEngine;
 using UnityEngine.Android;
 using Unity.Notifications.Android;
+using UnityEngine.UI;
 
 public class RewardManager : MonoBehaviour
 {
     [SerializeField] EnergyManager energyManager;
     [SerializeField] MenuManager menuManager;
+    [SerializeField] Image dailyImage; 
+    [SerializeField] Sprite open;
 
     private DateTime _time4NxtReward;
 
@@ -79,5 +82,6 @@ public class RewardManager : MonoBehaviour
 
         menuManager.RefreshGoldTxt();
         energyManager.RefreshEnergyTxt();
+        dailyImage.sprite = open;
     }
 }
